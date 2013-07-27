@@ -27,5 +27,7 @@ get '/users/new' do
 end
 
 post '/users' do
-  # sign-up a new user
+  hashed_password = BCrypt::Password.create params[:password]
+  User.create(name: params[:name], email: params[:email], password_hash: hashed_password)
+  erb :index
 end
