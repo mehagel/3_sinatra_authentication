@@ -12,10 +12,17 @@ get '/sessions/new' do
 end
 
 post '/sessions' do
-  # sign-in
+ @user = User.authenticate(params[:email],params[:password])
+  if @user
+    session[:user_id] = @user.id
+    redirect "/"
+  else
+    erb :sign_in
+  end
 end
 
 delete '/sessions/:id' do
+  session[:user]=nil
   # sign-out -- invoked via AJAX
 end
 
