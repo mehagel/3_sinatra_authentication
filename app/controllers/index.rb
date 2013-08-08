@@ -1,7 +1,15 @@
+
 get '/' do
   # render home page
  #TODO: Show all users if user is signed in
+
+  if current_user
+    @user=User.find(session[:user_id])
+    @users=User.all
+    erb :index
+  end
   erb :index
+  
 end
 
 #----------- SESSIONS -----------
@@ -12,18 +20,20 @@ get '/sessions/new' do
 end
 
 post '/sessions' do
- @user = User.authenticate(params[:email],params[:password])
-  if @user
+  # sign-in
+  if User.authenticate(params[:email], params[:password])
+    @user = User.find_by_email(params[:email])
     session[:user_id] = @user.id
-    redirect "/"
+    redirect '/'
   else
     erb :sign_in
   end
 end
 
 delete '/sessions/:id' do
-  session[:user]=nil
   # sign-out -- invoked via AJAX
+  session[:user_id] = nil
+  redirect '/'
 end
 
 #----------- USERS -----------
@@ -34,7 +44,7 @@ get '/users/new' do
 end
 
 post '/users' do
-  hashed_password = BCrypt::Password.create params[:password]
-  User.create(name: params[:name], email: params[:email], password_hash: hashed_password)
-  erb :index
+  @user = User.create(params)
+  # sign-up a new user
+  erb :sign_in
 end
